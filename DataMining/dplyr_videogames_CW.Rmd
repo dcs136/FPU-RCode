@@ -1,0 +1,147 @@
+---
+title: "Data Transformation Practice"
+subtitle: "Video Game Sales"
+output: html_notebook
+---
+
+First let us load the packages we will use in this lab, as well as the data set 
+```{r}
+library(tidyverse)
+```
+
+```{r}
+vg_path <- "https://raw.githubusercontent.com/reisanar/datasets/master/video_game_sales.csv"
+vg_sales <- read_csv(vg_path)
+```
+
+Let us use the `glimpse()` function to learn more about the type of variables included in this data frame.
+
+```{r}
+glimpse(vg_sales)
+```
+
+**Video Games Sales**
+
+The dataset contains a list of video games with sales greater than 100,000 copies. (Data frame was retrieved from <vgchartz.com>, and includes records of Sales from release until 10/26/2016).
+
+Fields include
+
+`Rank` - Ranking of overall sales
+
+`Name` - The games name
+
+`Platform` - Platform of the games release (i.e. PC,PS4, etc.)
+
+`Year` - Year of the game's release
+
+`Genre` - Genre of the game
+
+`Publisher` - Publisher of the game
+
+`NA_Sales` - Sales in North America (in millions)
+
+`EU_Sales` - Sales in Europe (in millions)
+
+`JP_Sales` - Sales in Japan (in millions)
+
+`Other_Sales` - Sales in the rest of the world (in millions)
+
+`Global_Sales` - Total worldwide sales.
+
+
+Print the data set :
+
+```{r}
+vg_sales
+```
+
+
+## Filter
+
+Notice that the variable `Year` is of class character in this dataset.
+
+- Filter games published in 2008
+
+```{r}
+
+```
+
+
+- Filter games in 2008 with `Global_Sales` higher or equal than 10 (million)
+
+```{r}
+
+```
+
+- Filter results for "FIFA Soccer 08"
+
+```{r}
+
+```
+
+![](https://upload.wikimedia.org/wikipedia/en/5/5f/FIFA_08_Coverart.png)
+
+
+
+## Mutate
+
+
+Create a new column that confirms that the number of `Global_Sales` matches the addition of the reported number of sales in the different regions
+
+```{r}
+
+```
+
+
+
+
+
+
+## Arrange
+
+Sort the video games by number of global sales, and break any ties by year of release
+
+```{r}
+
+```
+
+
+## Using the pipe operator with `group_by()` and `summarise()`
+
+
+**Summary by Platform**
+
+Use the pipe operator, `%>%`, and the `group_by()` and `summarise()` functions to create a summary of sales per platform 
+_(Hint: `sum(v)`  adds up all the elements in the vector `v`)_
+
+```{r}
+
+
+
+
+```
+
+
+**Summary by Genre**
+
+
+Use the pipe operator, `%>%`, and the `group_by()` and `summarise()` functions to create a summary of sales per genre 
+
+```{r}
+
+
+
+```
+
+
+
+#### To remember
+
+dplyr verbs     |Description
+----------------|------------------------------
+`select()`      |	select columns
+`filter()`      |	filter rows
+`arrange()`     |	re-order or sort rows
+`mutate()`      |	create new columns
+`summarise()`   |	summarise values
+`group_by()`    |	allows for group operations  

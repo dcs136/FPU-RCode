@@ -1,0 +1,122 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+
+```
+
+
+Recall the 'flights' dataset
+
+```{r}
+head(flights)
+```
+
+```{r}
+jan1 <- filter(flights, month == 1, day == 1)
+
+```
+
+Find flights to TPA on January 1, 2013.
+
+```{r}
+filter(jan1, dest == 'TPA', origin %in% c('JFK', 'LGA'))
+```
+
+# ´arrange()´
+```{r}
+
+arrange(flights, desc(arr_delay))
+
+
+
+```
+
+
+# select()
+```{r}
+select(flights,-c(1,2))
+
+```
+
+
+Usign helper functions
+
+```{r}
+select(flights, starts_with("dep"))
+
+```
+
+
+# Using mutate()
+
+```{r}
+
+flights_sml <- select(flights, year::day,
+                      ends_with("delay"),
+                      distance,
+                      air_time)
+
+flights_sml
+
+```
+
+
+```{r}
+mutate(flights_sml,
+       gain = arr_delay - dep_delay,
+       speed= distance/air_time * 60
+       )
+```
+
+
+#'Summarize'
+
+```{r}
+summarise(flights, delay = mean(dep_delay, na.rm = T)%>%
+            group_by(month))
+      
+```
+
+
+```{r}
+flights %>%
+  group_by(dest)%>%
+  summarise(
+    count = n(),
+    dist = mean(distance, na.rm = T),
+    delay = mean(arr_delay, na.rm = T)
+  )  %>% 
+  filter(count > 20, dest != "HNL") %>% 
+  arrange(delay)
+
+```
+
+
+
+```{r}
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x = displ, 
+                           y = hwy, 
+                           color = class ))
+
+```
+
+
+help(ggplot)
+```{r}
+ggplot(data=diamonds)+
+  geom_point(aes(x = carat, y = price, color = cut))+
+  facet_wrap(cut)+
+  ggtitle("Dimonds price vs carat")
+
+```
+
+
+
+
+

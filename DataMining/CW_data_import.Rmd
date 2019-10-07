@@ -1,0 +1,90 @@
+---
+title: "Data Import"
+output: html_notebook
+---
+
+We will use tools from the `readr` package that is part of the `tidyverse`
+
+```{r, message=FALSE}
+library(tidyverse)
+```
+
+
+
+Refer to the "Data Import" chapter from [R4DS](https://r4ds.had.co.nz/data-import.html) for additional information.
+
+- `read_csv()` reads comma delimited files
+
+- `read_csv2()` reads semicolon separated files (common in countries where , is used as the decimal place)
+
+- `read_tsv()` reads tab delimited files
+
+- `read_delim()` reads in files with any delimiter (specified with the option `delim`)
+
+We practice by reading a `.csv` file directly from the web:
+
+```{r}
+# create a string variable with the location of the file
+nba_link <- "https://raw.githubusercontent.com/reisanar/datasets/master/NBAchampionsdata.csv"
+
+# read the file using the read_csv() function
+nba_champions <- read_csv(nba_link)
+```
+
+The file contains information regarding the final games for the NBA champions of every year.
+
+
+The first argument to `read_csv()` is the most important: the path to the file to read. When you run `read_csv()` it prints out a column specification that gives the name and type of each column.
+
+
+
+Suppose we want to check the distribution of points per game (variable `PTS`). We can use a histogram to explore that variable
+
+```{r}
+nba_champions %>%
+  ggplot(aes (x = PTS)) +
+  geom_histogram()
+
+```
+
+It seems there are some NBA champions that scored more than 130 points in a finals game:
+
+```{r}
+
+filter(nba_champions, PTS > 130)
+
+```
+
+```{r}
+filter(nba_champions, PTS > 100, Year == 2001)
+```
+
+Some datasets come with missing values, denoted as `NA` in R.
+
+```{r}
+# define location of file
+rating_link <- "https://raw.githubusercontent.com/reisanar/datasets/master/courserating.csv"
+# read courses ratings data with read_csv()
+course_ratings <- read_csv(rating_link)
+```
+
+If we print the data frame we can observe the missing values
+
+```{r}
+head(course_ratings)
+
+```
+
+```{r}
+course_ratings %>%
+  select(everything()) %>%
+  summarise_all(funs(sum(is.na(.))))
+```
+
+
+Some other items to keep in mind:
+
+- Sometimes there are a few lines of metadata at the top of the file. You can use `skip = n` to skip the first `n` lines; or use `comment = "#"` to drop all lines that start with (e.g.) `#`.
+
+- The data might not have column names. You can use `col_names = FALSE` to tell `read_csv()` not to treat the first row as headings, and instead label them sequentially from `X1` to `Xn`
+

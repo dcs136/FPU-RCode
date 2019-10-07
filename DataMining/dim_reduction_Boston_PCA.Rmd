@@ -1,0 +1,263 @@
+---
+title: "Dimensionality Reduction with PCA - Visualization"
+subtitle: "Boston Housing Dataset"
+output: html_notebook
+---
+
+Let us load the `tidyverse` package for data transformation and visualization
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+```
+
+
+## House Prices in Boston
+
+For each neighborhood, a number of variables are given, such as the crime rate, the student/teacher ratio, and the median value of a housing unit in the neighborhood.
+
+The file `BostonHousing.csv` contains information collected by the US Bureau of the Census concerning housing in the area of Boston, Massachusetts. The dataset includes information on 506 census housing tracts in the Boston area. The goal is to _predict the median house price_ in new tracts based on information such as crime rate, pollution, and number of rooms. The response is the median house price (`MEDV`).
+
+  Variables |  Description
+------------|----------------------------------------------------------------
+`CRIM`      | Crime rate
+`ZN`        | Percentage of residential land zoned for lots over 25,000 ft2
+`INDUS`     | Percentage of land occupied by non-retail business
+`CHAS`      | Does tract bound Charles River (`= 1` if tract bounds river, `= 0` otherwise)
+`NOX`       | Nitric oxide concentration (parts per 10 million)
+`RM`        | Average number of rooms per dwelling
+`AGE`       | Percentage of owner-occupied units built prior to 1940
+`DIS`       | Weighted distances to five Boston employment centers
+`RAD`       | Index of accessibility to radial highways
+`TAX`       | Full-value property tax rate per $10,000
+`PTRATIO`   | Pupil-to-teacher ratio by town
+`LSTAT`     | Percentage of lower status of the population
+`MEDV`      | Median value of owner-occupied homes in $1000s
+`CAT.MEDV`  | Is median value of owner-occupied homes in tract above $30,000 (`CAT.MEDV = 1`) or not (`CAT.MEDV = 0`)
+
+
+- Read dataset:
+
+```{r, message=FALSE}
+housing <- read_csv("https://raw.githubusercontent.com/reisanar/datasets/master/BostonHousing.csv")
+```
+
+Print the first 6 observations:
+
+```{r}
+head(housing)
+```
+
+
+The first row represents the first neighborhood, which had an average per capita crime rate of 0.006, 18% of the residential land zoned for lots over 25,000 ft2, 2.31% of the land devoted to non-retail business, no border on the Charles River, and so on.
+
+
+Let us consider a smaller data set of continuous variables only:
+
+```{r}
+red_boston <- housing %>% 
+                select(-c(ZN, RAD, TAX, CHAS, `CAT. MEDV`))
+```
+
+
+Are there any missing values?
+
+```{r}
+red_boston %>% 
+  is.na() %>% 
+  sum()
+```
+
+Luckily, this dataset has no missing values. We now focus on performing PCA using all numerical variables in the `red_boston` data frame:
+
+
+#### Other summaries
+
+We can also compute the standard deviation, which gives a sense of how dispersed the data are (relative to the mean). Further options, such as `sum(is.na(VARIABLE))`, which gives the number of null values, can tell us about missing values.
+
+
+```{r}
+# data frame with summary statistics
+data_frame(
+    var_name   = colnames(red_boston),
+    var_mean   = map_dbl(red_boston, mean), 
+    var_sd     = map_dbl(red_boston, sd), 
+    var_median = map_dbl(red_boston, median)
+    ) 
+```
+
+
+#### Correlation
+
+Next, we summarize relationships between two or more variables.
+
+For _numerical variables_, we can compute a complete **matrix of correlations** between each pair of variables, using the R function `cor()`.
+
+```{r}
+# matrix with correlation coefficients
+cor(red_boston)
+```
+
+
+### PCA
+
+We use the `prcomp()` function to perform principal component analysis (PCA) on the Boston housing dataset:
+
+```{r}
+pca_boston <- prcomp(red_boston, scale = T)
+summary(pca_boston)
+```
+
+The first 5 principal component explain ~90% of the variation in the collection of 506 data points.
+
+
+We can check the loadings for these 5 components: 
+
+```{r}
+# check the new loadings
+pca_boston$rotation[ , 1:5]
+```
+
+
+
+_Can we characterize the role of each principal component here?_
+
+- PC1 largest loadings come from `LSTAT` (percentage of lower status of the population) , `INDUS` (percentage of land occupied by non-retail business), `NOX` (nitric oxide concentration)
+
+- PC2 largest loadings come from (positive) `DIS` (weighted distances to 5 Boston employment centers), and (negative) `MEDV` (median value of owner-occupied homes), (negative) `RM` (average number of rooms)
+
+
+### Visualization
+
+
+A biplot is a plot which aims to represent both the observations and variables of a matrix of multivariate data on the same plot. There are many variations on biplots.
+A loading plot shows how strongly each characteristic influences a principal component. The angles between the vectors tell us how characteristics correlate with one another. When two vectors are close, forming a small angle, the two variables they represent are positively correlated. If they meet each other at a right angle, they are not likely to be correlated. When they diverge and form a large angle (close to 180 degrees), they are negative correlated. 
+
+The `bliplot()` function from the `stats` (already included in your initial R installation), creates simple biplots from a PCA object. 
+
+**Using `ggfortify`**
+
+Here we use the package `ggfortify`, that comes with a collection of data visualization tools for statistical analysis results. 
+
+
+```{r}
+# load the ggfortify package
+library(ggfortify)
+```
+
+
+Create a biplot:
+
+```{r}
+autoplot(pca_boston, loadings.colour = 'blue',
+         loadings = TRUE, loadings.label = TRUE,
+         loadings.label.size = 3)
+```
+
+The location of the loading vectors for each feature in the PC1-PC2 plane can be found by looking at the `rotation` list element of the PCA object
+
+```{r}
+pca_boston$rotation[ , 1:2]
+```
+
+
+By default, each component is scaled as the same as standard `biplot()`. You can disable the scaling by specifying `scale = 0`
+
+
+```{r}
+autoplot(pca_boston, loadings.colour = 'blue',
+         loadings = TRUE, loadings.label = TRUE,
+         loadings.label.size = 3, scale = 0)
+```
+
+Notice that the scale in the plot above comes from the range of PC1 and PC2 from our PCA calculation:
+
+```{r}
+# find range of PC1
+range(pca_boston$x[, 1])
+# find range of PC2
+range(pca_boston$x[, 2])
+```
+
+Does it make sense that the loading vectors for `DIS` and `NOX` point in opposite directions?
+
+```{r}
+# check correlation for DIS and NOX
+red_boston %>%
+  select(DIS, NOX) %>% 
+  cor()
+```
+
+Similarly for `PTRATIO` and `MEDV` which are negatively correlated variables:
+
+```{r}
+# check correlation for PTRATIO and MEDV
+red_boston %>%
+  select(PTRATIO, MEDV) %>% 
+  cor()
+```
+
+
+**Other components**
+
+If we wanted to plot other principal components, we can do that by specifying the parameters `x` and `y` in the `autoplot()` function call:
+
+```{r}
+# plot the 3rd and 4th principal components
+autoplot(pca_boston, loadings.colour = 'blue',
+         loadings = TRUE, loadings.label = TRUE,
+         loadings.label.size = 3, 
+         x = 3, y = 4)
+```
+
+
+
+
+Notice that we can also use the `autoplot()` function to make a quick plot of the correlation between the different variables:
+
+```{r, message= FALSE}
+autoplot(cor(red_boston)) + 
+  labs(x = "", y = "", title = "Correlation Plot") 
+```
+
+
+
+**Using `factoextra`**
+
+
+The `factoextra` package provides some easy-to-use functions to extract and visualize the
+output of multivariate data analyses, including Principal Component
+Analysis (PCA)
+
+```{r, message=FALSE}
+library(factoextra)
+```
+
+
+A _scree-plot_ can be easily generated to show the contribution of each component to explain the variation in the data
+
+```{r}
+fviz_screeplot(pca_boston)
+```
+
+
+Biplots can also be generated using:
+
+```{r}
+fviz_pca(pca_boston, geom = "point", repel = TRUE)
+```
+
+Contributions to the first principal component:
+
+```{r}
+fviz_contrib(pca_boston, choice = "var", axes = 1)
+```
+
+Contributions to the second principal component:
+
+```{r}
+fviz_contrib(pca_boston, choice = "var", axes = 2)
+```
+
+
+
+
