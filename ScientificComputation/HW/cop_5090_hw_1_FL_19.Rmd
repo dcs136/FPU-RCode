@@ -1,0 +1,202 @@
+---
+title: "Homework Assignment 1"
+author: "Danilo Cardoso dos Santos `dcardoso8563@floridapoly.edu`"
+subtitle: "Introduction to R programming"
+output: html_notebook
+---
+
+
+# Problem 1 
+(spuRs, chapter 2, exercise 2d)
+
+Give R an expression that returns the following matrix
+
+$$
+\begin{align*}
+A & =\left[\begin{array}{ccc}
+0 & 2 & 3\\
+0 & 5 & 0\\
+7 & 0 & 0
+\end{array}\right]
+\end{align*}
+$$
+
+
+```{r}
+elem <- c(0,2,3,0,5,0,7,0,0)
+A <- matrix(elem,3,3,T)
+
+A
+```
+
+
+# Problem 2
+(spuRs, chapter 2, exercise 4)
+
+Use R to produce a vector containing all integers from 1 to 100 that are _not divisible_ by 2, 3, or 7.
+
+```{r}
+# Function
+not_div <- function(x,y,z) {
+    d <- 1:100
+    x <- d[d %% x != 0]
+    y <- d[d %% y != 0]
+    z <- d[d %% z != 0]
+  out1 <- c(x)
+  out2 <- c(y)
+  out3 <- c(z)
+  print(out1)
+  print(out2)
+  print(out3)   
+}
+#Output
+
+not_div(2,3,7)
+```
+
+
+
+# Problem 3
+(spuRs, chapter 3, exercise 1)
+
+Consider the function $f(x)$ defined by 
+
+$x$       | $\leq 0$  | $\in(0, 1]$ | $>1$
+----------|-----------|-------------|------------
+$f(x)$    | $-x^3$    | $x^2$       | $\sqrt{x}$
+
+
+Supposing that you are given `x`, write an R expression for `y` using _if statements_
+
+Add your expression for `y` to the following program, then run it to plot the
+function `f`.
+
+**Change the option `eval = FALSE` to `eval = TRUE`**
+
+```{r}
+# input
+x.values <- seq(-2, 2, by = 0.1)
+# for each x calculate y
+n <- length(x.values)
+y.values <- rep(0, n)
+y = 0
+for (i in 1:n) {
+       x <- x.values[i]
+       y <- y.values[i
+                     ]
+       if(x == 0) {
+         y <- -x^3
+       } else if(x > 0 && x <=1) {
+         y <- x^2
+       } else if(x > 1) {
+         y <- sqrt(x)
+       }
+       y.values[i] <- y
+}
+
+# output
+plot(x.values, y.values, type = "l")
+```
+
+- Do you think $f$ has a derivative at 1? What about at 0?
+
+**_Yes there is an instantaneous slope after 0 as well as 1. Both 0 and 1 has a derivative. _**
+
+
+- We remark that it is possible to vectorise the program above, using the `ifelse()` function.
+
+
+
+# Problem 4 
+(spuRs, chapter 3, exercise 5)
+
+To rotate a vector $(x,y)^T$ anticlockwise by $\theta$ radians, you
+premultiply it by the matrix
+
+$$
+\begin{align*}
+B & =\left[\begin{array}{cc}
+\cos(\theta) & -\sin(\theta)\\
+\sin(\theta) & \cos(\theta)
+\end{array}\right]
+\end{align*}
+$$
+
+Write a program in R that does this for you.
+
+```{r}
+
+rotate <- function(x) {
+    theta <- pi/4
+    B <- matrix(c(cos(theta), sin(theta), -sin(theta), cos(theta)),2,2)
+    B %*% x
+}
+
+my_vec <- matrix(c(1,0),2,1)
+
+vec_rot <- rotate(my_vec)
+
+vec_rot
+
+```
+
+
+
+# Problem 5 
+(spuRs, chapter 3, exercise 2)
+
+Let $h(x,n) = 1 + x + x^2 + ... + x^n = \sum _{i=0} ^n x^i.$ Write an R program to calculate $h(x,n)$ using a `for` loop.
+
+```{r}
+
+h <- function(x,n) {
+    result <- vector("numeric")
+      for (i in 0:n) {
+      y <- x^i
+      result[i] <- y
+            }
+print(sum(result)+1)
+  }
+
+```
+
+
+# Problem 6
+(spuRs, chapter 3, exercise 3)
+
+The function $h(x,n)$ in the previous problem is the finite sum of a _geometric sequence_. It has the following explicit formula (for $x \neq 1$)
+
+$$
+h(x, n) = \frac{1-x^{n+1}}{1-x}
+$$
+
+
+Test your program from the previous problem against this formula using the following values of $x$ and $n$:
+
+
+$x$   | $n$  | $h(x,n)$    | 
+------|------|-------------|
+0.3   | 55   | 1.428571    | 
+6.6   |  8   | 4243335.538 |
+
+
+(use R to calculate the formula)
+
+
+```{r}
+
+f_t <- h(0.3,55)
+
+s_t <- h(6.6,8)
+
+el <- c(0.3,55,f_t,6.6,8,s_t)
+
+
+R <- matrix(el, 2,3, T)
+
+colnames(R) <- (c('x','n','h(x,n)'))
+
+R
+
+```
+

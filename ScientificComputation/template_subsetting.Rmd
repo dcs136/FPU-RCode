@@ -1,0 +1,353 @@
+---
+title: "Subsetting"
+date: "Adapted from \"Advanced R\" by Hadley Wickham"
+output: html_notebook
+---
+
+
+
+
+## Before we jump into it...
+
+Make sure that you have R and Rstudio installed in your computer
+
+_Alternatively:_ feel free to use [rstudio.cloud](https://rstudio.cloud) for a web-based version of RStudio
+
+**Good references**
+
+- _"R for Data Science"_ (R4DS) by Hadley Wickham and Garret Grolemund. The official website of the textbook is <http://r4ds.had.co.nz/>
+
+- "Advanced-R" <http://adv-r.had.co.nz/>
+
+
+
+
+
+
+
+# Atomic vectors
+
+---
+
+```{r}
+
+
+```
+
+There are five things that you can use to subset a vector:
+
+- Positive integers return elements at the specified positions:
+
+```{r}
+
+
+```
+
+```{r}
+
+
+```
+
+```{r}
+# Duplicated indices yield duplicated values
+
+
+```
+
+
+---
+
+- Negative integers omit elements at the specified positions:
+
+```{r}
+
+
+```
+
+- Logical vectors select elements where the corresponding logical value is `TRUE`. 
+
+```{r}
+
+
+```
+
+
+```{r}
+
+
+```
+
+---
+
+- Nothing returns the original vector. This is not useful for vectors but is very useful for matrices, data frames, and arrays. 
+
+```{r}
+
+
+```
+
+
+- Zero returns a zero-length vector. This is not something you usually do on purpose, but it can be helpful for generating test data.
+
+```{r}
+
+
+```
+
+---
+
+If the vector is named, you can also use:
+
+```{r}
+
+
+```
+
+```{r}
+
+
+```
+
+
+# Lists
+
+---
+
+Subsetting a list works in the same way as subsetting an atomic vector. 
+
+Using `[` will always return a list; `[[` and `$` let you pull out the components of the list.
+
+## Matrices and arrays
+
+Supply a 1d index for each dimension, separated by a comma. Blank subsetting is now useful because it lets you _keep all rows or all columns_.
+
+```{r}
+
+
+
+```
+
+
+```{r}
+
+
+```
+
+## Data frames
+
+Data frames possess the characteristics of both lists and matrices: if you subset with a single vector, they behave like lists; if you subset with two vectors, they behave like matrices.
+
+```{r}
+
+
+```
+
+```{r}
+
+
+```
+
+---
+
+```{r}
+# Like a list:
+
+
+```
+
+```{r}
+# Like a matrix
+
+```
+
+# Subsetting operators
+
+---
+
+
+`[[` is similar to `[`, except it can only return a single value and it allows you to pull pieces out of a list. 
+
+You need `[[` when working with lists. This is because when `[` is applied to a list it always returns a list: it never gives you the contents of the list. To get the contents, you need `[[`:
+
+
+```{r}
+
+
+```
+
+
+```{r}
+
+
+```
+
+
+Because data frames are lists of columns, you can use `[[` to extract a column from data frames: `mtcars[[1]]`, `mtcars[["cyl"]]`.
+
+
+## `$`
+
+`$` is a shorthand operator, where `x$y` is equivalent to `x[["y", exact = FALSE]]`. It is often used to access variables in a data frame, as in `mtcars$cyl` or `diamonds$carat`.
+
+- One important difference between `$` and `[[`: `$` does partial matching
+
+```{r}
+
+
+```
+
+
+```{r}
+
+
+```
+
+---
+
+
+```{r}
+
+
+```
+
+
+## Missing/out of bounds indices
+
+`[` and `[[` differ slightly in their behaviour when the index is out of bounds (OOB), for example, when you try to extract the fifth element of a length four vector, or subset a vector with `NA` or `NULL`:
+
+```{r}
+
+
+
+```
+
+
+
+```{r}
+
+
+```
+
+```{r}
+
+
+```
+
+
+# Some Applications of Subsetting
+
+---
+
+## Lookup tables
+
+Character matching provides a powerful way to make lookup tables. Say you want to convert abbreviations:
+
+```{r}
+x <- c("m", "f", "u", "f", "f", "m", "m")
+lookup <- c(m = "Male", f = "Female", u = NA)
+lookup[x]
+```
+
+```{r}
+#don't want names in the result: use unname() to remove 
+unname(lookup[x])
+```
+
+```{r}
+# Or with fewer output values
+c(m = "Known", f = "Known", u = "Unknown")[x]
+```
+
+
+## Matching and merging by hand 
+
+Suppose we have a vector of integer grades, and a table that describes their properties:
+
+```{r}
+grades <- c(1, 2, 2, 3, 1, 3, 3)
+
+info <- data.frame(
+  grade = 3:1,
+  desc = c("Excellent", "Good", "Poor"),
+  fail = c(F, F, T)
+)
+```
+
+<small>
+We want to duplicate the info table so that we have a row for each value in `grades`. We can do this in two ways, either using `match()` and integer subsetting, or `rownames()` and character subsetting:
+</small>
+
+```{r}
+grades
+```
+
+---
+
+```{r}
+# Using match
+id <- match(grades, info$grade)
+info[id, ]
+```
+
+
+
+```{r}
+# Using rownames
+rownames(info) <- info$grade
+info[as.character(grades), ]
+```
+
+## Expanding aggregated counts 
+
+Sometimes you get a data frame where identical rows have been collapsed into one and a count column has been added. `rep()` and integer subsetting make it easy to uncollapse the data by subsetting with a repeated row index:
+
+```{r}
+df <- data.frame(x = c(2, 4, 1), y = c(9, 11, 6), n = c(3, 5, 1))
+df
+```
+
+
+```{r}
+rep(1:nrow(df), df$n)
+```
+
+---
+
+```{r}
+df[rep(1:nrow(df), df$n), ]
+```
+
+## Removing columns from data frames 
+
+```{r}
+df <- data.frame(x = 1:3, y = 3:1, z = letters[1:3])
+df$z <- NULL
+```
+
+```{r}
+df <- data.frame(x = 1:3, y = 3:1, z = letters[1:3])
+df[c("x", "y")]
+```
+
+## Selecting rows based on a condition
+
+```{r}
+
+
+```
+
+```{r}
+
+```
+
+
+Use the vector boolean operators `&` and `|`, not the _short-circuiting_ scalar operators `&&` and `||` which are more useful inside if statements. 
+
+
+## `subset()`
+
+```{r}
+
+
+```
+

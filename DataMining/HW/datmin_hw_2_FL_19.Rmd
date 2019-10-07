@@ -1,0 +1,276 @@
+---
+title: "Homework Assignment 2"
+subtitle: "Dimensionality Reduction"
+author: "Danilo Cardoso dos Santos - dcardoso8563@floridapoly.edu"
+output: html_notebook
+---
+
+## Problem 1
+
+Load the `tidyverse` package.T
+
+```{r, message = FALSE, warning=FALSE}
+library(tidyverse)
+```
+
+(a) Read the Toyota Corollas dataset on sales during late summer of 2004 in the Netherlands. It has 1436 records containing details on 38 attributes, including Price, Age, Kilometers, HP, and other specifications. 
+
+
+```{r, message=FALSE}
+toyota <- read_csv("https://raw.githubusercontent.com/reisanar/datasets/master/ToyotaCorolla.csv")
+```
+
+
+Identify the categorical variables.
+
+
+**Variables Considered**
+
+C.N. | Name
+--|---------
+3 | Price
+4 | Age_08_04
+7 | KM
+9 | HP
+13| CC
+14| Doors
+16| Gears
+17| Quarterly_Tax
+18| Weight
+
+(b) Create a new data frame ignoring the categorical variables. Perform **Principal Component Analysis (PCA)**, and comment on your results.
+
+
+**Considering Categorical variables**
+
+```{r}
+#Remove categorical variables
+toyota_small <- toyota[,c(3,4,7,9,13,14,16,17,18)]
+
+#Check for missing values
+# toyota_small %>% 
+#   is.na() %>% 
+#   sum()
+
+```
+
+
+
+```{r}
+# load the caret package
+library(caret)
+```
+
+
+**Normalizing the dataset**
+
+```{r}
+# calculate the pre-process parameters from the dataset
+preProc_norm <- preProcess(toyota_small, method = c("range"))
+
+#transform the dataset using the parameters
+toyota_norm <- predict(preProc_norm, toyota_small)
+
+# summarize the transformed dataset
+# summary(toyota_norm)
+
+```
+
+**Performing PCA**
+
+```{r}
+# Call PCA function
+pca_toyota <- prcomp(toyota_norm)
+
+#summarize PCA results
+summary(pca_toyota)
+```
+
+_Here we demonstrated that 93% of the variance is accounted from PC1 to PC4. By this simple analysis we could ignore 5 variables._
+
+
+(c) Produce at least one **data visualization** to explain the results on PCA. (You can use the `factoextra` package for this and follow the examples discussed in class)
+
+
+```{r}
+#load the factoextra package
+library(factoextra)
+
+```
+
+
+```{r}
+# Plot bar and line chart
+fviz_screeplot(pca_toyota)
+```
+
+
+
+```{r}
+fviz_contrib(pca_toyota, 
+             choice = "var", 
+             axes = 1, 
+             fill="#697184")
+```
+
+
+
+## Problem 2
+
+Consider the `USArrests` dataset, which contains statistics, in arrests per 100,000 residents for assault, murder, and rape in each of the 50 US states in 1973. Also given is the percent of the population living in urban areas.
+
+```{r}
+head(USArrests)
+```
+
+(a) Perform **PCA** on the four numerical variables in this dataset.
+
+
+```{r}
+#Check for missing values
+USArrests %>% 
+  is.na() %>% 
+  sum()
+```
+**Performing PCA and Standardizing the dataset**
+
+
+```{r}
+
+# Call PCA function
+pca_USArrests <- prcomp(USArrests, scale=T)
+
+#Summarize PCA results
+summary(pca_USArrests)
+
+```
+ 
+_Here we can see that the first two components account for 87% of the total variance._
+
+
+(b) Create a **bi-plot** (in the PC1-PC2 coordinate system) and explain your results. According to your findings: Do Florida, Nevada, California, and Michigan have anything in common? How about New Hampshire, Maine, and North Dakota?
+
+```{r}
+
+fviz_pca(pca_USArrests, 
+               geom = "text", 
+               repel = TRUE
+               )
+
+```
+
+_The first group has a high number of arrests related to Rape and it has a high percentage of Urban Pop. The other group has a relatively small percentage of Urban Pop and a relatively small number of arrests per 100k_
+
+
+## Problem 3
+
+In this problem you will look at the statistics for 30 NHL teams in a data set compiled from <www.nhl.com> and <www.puckalytics.com>.  
+
+It is important to understand how the NHL awards points to the teams. Unlike football or baseball where only wins and losses count, professional hockey uses the following point system for each game:
+
+- The winner gets two points whether that is in regulation, overtime, or as a result of the post-overtime shootout
+
+- A regulation loser receives no points
+
+- An overtime or shootout loser receives one point; the so-called loser point
+
+(a) Read the data using the `read_csv()` function from the `tidyverse` package
+
+```{r, message=FALSE}
+# read hockey data
+tr_link <- "https://raw.githubusercontent.com/datameister66/data/master/NHLtrain.csv"
+hockey <- read_csv(tr_link)
+```
+
+Variables involved are:
+
+Name    | Description
+--------|-----------------------------------------------------------------
+`Team`  | team's city
+`ppg`   | average points per game 
+`Goals_For`| average goals the team scores per game
+`Goals_Against`| goals allowed per game
+`Shots_For` | shots on goal per game
+`Shots_Against`| opponent shots on goal per game
+`PP_perc` | percent of power play opportunities the team scores a goal
+`PK_perc` | percent of time the team does not allow a goal when their opponent is on the power play
+`CF60_pp` | team's Corsi Score per 60 minutes of power play time; Corsi Score is the sum of shots for (`Shots_For`), shot attempts that miss the net and shots blocked by the opponent
+`CA60_sh`| opponents Corsi Score per 60 minutes of opponent power play time i.e. the team is shorthanded
+`OZFOperc_pp` | percentage of face offs that took place in the offensive zone while the team was on the power play
+`Give`  | average number per game that the team gives away the puck
+`Take`  | average number per game that the team gains control of the puck
+`hits`  | average number of the team's bodychecks per game
+`blks`  | average number per game of the team's blocking an opponent's shot on goal
+
+
+
+Create summary statistics for the numerical variables, including the mean, median, and standard deviation.
+
+```{r}
+data_frame(
+  var_name   = colnames(hockey),
+  var_mean   = map_dbl(hockey, mean),
+  var_sd     = map_dbl(hockey,sd ),
+  var_median = map_dbl(hockey, median)
+)
+
+```
+
+
+(b) Create a **correlation matrix** among the different numerical variables. Comment on your results.
+
+
+```{r}
+# Load ggplot2 package
+library(ggplot2)
+
+#install.packages("ggcorrplot")
+
+library(ggcorrplot)
+```
+
+
+```{r}
+# Correlation matrix
+cor(hockey[,2:15])
+
+# Heatmap correlation 
+# autoplot(cor(hockey[,2:15])) + 
+#   labs(x = "", y = "", title = "Correlation Plot") 
+
+ggcorrplot(cor(hockey[,2:15]))
+
+
+```
+
+_pgn has a positive correlation with the`Goals_for` variable and a negative correlation with the `Goals_Against` variables, which makes perfect sense._
+
+
+
+(c) Perform **PCA** on the numerical variables. How many principal components are needed to capture about 70% of the variance? Comment on your results. 
+
+```{r}
+pca_hockey <- prcomp(hockey[,2:15])
+
+summary(pca_hockey)
+
+```
+
+_PC1 and PC1 account for 79% of the total variance_
+
+
+(d) Create a **biplot** showing the different data points and the loadings for each original feature in the PC1-PC2 space. 
+
+
+```{r}
+
+fviz_pca(pca_hockey, 
+               geom = "point", 
+               repel = TRUE,
+               col.ind="cos2")+
+              scale_color_gradient2(low="white", mid="blue",
+              high="red", midpoint=0.6)
+
+
+```
+

@@ -1,0 +1,157 @@
+---
+title: "CW: Problems on Functions "
+subtitle: "Programming with R"
+output: html_notebook
+---
+
+
+
+
+> When should you write a function?
+You should consider writing a function whenever you've copied and pasted a block of code more than twice (i.e. you now have three copies of the same code). 
+
+Consider the following example
+
+```{r}
+rescale01 <- function(x) {
+  rng <- range(x, na.rm = TRUE)
+  (x - rng[1]) / (rng[2] - rng[1])
+}
+# define sample vector
+my_vec <- c(0, 5, 10)
+
+#range(my_vec)
+
+# test function 
+rescale01(my_vec)
+```
+
+There are three key steps to creating a new function:
+
+1. You need to pick a **name** for the function. Here we've used `rescale01` because this function _rescales a vector_ to lie between 0 and 1.
+
+
+
+
+2. You list the **inputs**, or *arguments*, to the function inside `function`. Here we have just one argument. If we had more the call would look like `function(x, y, z)`.
+
+
+
+
+3. You place the code you have developed in the **body** of the function, a `{` block that immediately follows `function(...)`.
+
+
+## Practice
+
+
+
+1. Why is `TRUE` not a parameter to `rescale01()`? What would happen if `x` contained a single missing value, and `na.rm` was `FALSE`?
+
+
+
+
+
+2. Practice turning the following _code snippets_ into functions. Think about what each function does. What would you call it? How many arguments does it need? Can you rewrite it to be more expressive or with less duplication?
+
+```{}
+mean(is.na(x))
+```
+
+```{r}
+prop_na <- function(x) {
+  mean(is.na(x))
+}
+
+```
+```{r}
+pro_na( c(NA,2,NA, 17,NA))
+
+pro_na <- ( c(NA,2,NA, 17,NA))
+
+prop_na(pro_na)
+
+```
+
+
+
+```{}
+
+x / sum(x, na.rm = TRUE)
+
+
+```
+
+```{r}
+myweights <- function(x){
+  x / sum(x, na.rm=T)
+}
+
+myweights(pro_na)
+
+```
+
+```{r}
+y <- myweights(c(0:5))
+y
+```
+
+```{r}
+sum(y)
+```
+
+
+
+3. Write `both_na()`, a function that takes two vectors of the same length and returns the _number of positions_ that have an `NA` in both vectors.
+
+
+
+
+## Consistency
+
+If you have a family of functions that do similar things, make sure they have _consistent names and arguments_. Use a common prefix to indicate that they are connected. That's better than a common suffix because auto-complete allows you to type the prefix and see all the members of the family.
+
+
+```{r, eval=FALSE}
+# Good
+input_select()
+input_checkbox()
+input_text()
+
+# Not so good
+select_input()
+checkbox_input()
+text_input()
+
+```
+
+
+## Practice
+
+
+1. Read the source code for each of the following three functions, puzzle out what they do, and then brainstorm better names.
+
+
+```{r}
+f1 <- function(string, prefix) {
+  substr(string, 1, nchar(prefix)) == prefix
+}
+f2 <- function(x) {
+  if (length(x) <= 1) return(NULL)
+  x[-length(x)]
+}
+f3 <- function(x, y) {
+  rep(y, length.out = length(x))
+}
+```
+
+
+
+```{r}
+```
+
+
+
+
+
+
+

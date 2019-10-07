@@ -1,0 +1,219 @@
+---
+title: "Homework Assignment 2"
+author: "Danilo Cardoso dos Santos `dcardoso@floridapoly.edu`"
+subtitle: Introduction to R programming
+output: html_notebook
+---
+
+
+# Problem 1
+(adapted from spuRs, chapter 3, exercise 6)
+
+Write a program in R in which given a vector $x$, its geometric mean is calculated. Recall that the _geometric mean_ of $x_1, . . . , x_n$ is 
+
+$$
+\left(\prod_{i=1}^{n}x_{i}\right)^{\frac{1}{n}} 
+$$
+
+```{r}
+x <- c(3, 4)
+
+gm <- 1
+
+for (xi in x)gm <-gm*xi
+  (gm <- gm^(1/length(x)))
+
+```
+
+
+
+Create a second function that calculates the _harmonic mean_
+
+$$
+\frac{n} {\left(\sum_{i=1}^{n}\frac{1}{x_{i}}\right)} = \left(\frac{\sum_{i=1}^n x_i^{-1}}{n} \right)^{-1}
+$$
+
+(notice, from the second form, that the harmonic mean is simply the reciprocal of the _arithmetic mean_ of reciprocals)
+```{r}
+hm <- 1/sum(1/x)
+
+hm
+```
+
+
+- Checks that if the $x_i$ are all positive, the harmonic mean is always less than or equal to the geometric mean (which is always less than or equal to the arithmetic mean).
+
+```{r}
+
+
+for (i in length(x)) {
+  if(xi>0){
+    print("All Positives")
+  }else{
+    print("Not all positives")
+  }
+}
+
+
+```
+
+# Problem 2 
+(adapted from spuRs, chapter 3, exercise 7)
+
+Write a program in R that finds the sum of every third element of a vector `x`.
+
+```{r}
+x <- c(1,2,100,7,5,99,88)
+
+third <- seq(3,length(x),by=3)
+
+sum(x[third])
+
+```
+
+# Problem 3 
+
+Is `x[-which(x > 0)]` the same as `x[x <= 0]`? Show some examples.
+
+(see the documentation for `which()` as needed)
+
+```{r}
+x <- c(1,2,0,-1,-3)
+
+x[-which(x > 0)]
+
+x[x <= 0]
+
+```
+
+
+# Problem 4
+
+Read the documentation for the function `upper.tri()`. What does `upper.tri()` return? How does subsetting a matrix with it work? Provide an example
+
+```{r}
+#help(upper.tri)
+
+M <- matrix(1:20,4, 5)
+
+UT<-upper.tri(M)
+
+M[UT]
+
+```
+
+_It returns an upper triangular of a matrix_
+
+_It can return the TRUE values of an upper_
+
+
+# Problem 5
+
+Write a function that calculates the mean of a numeric vector `x`, ignoring the `s` smallest and `l` largest values (this is a **_trimmed mean_**).
+
+For example, if `x = c(1, 7, 3, 2, 5, 0.5, 9, 10)`, `s = 1`, and `l = 2`, your function would return the mean of `c(1, 7, 3, 2, 5)` (this is `x` with the 1 smallest value (0.5) and the 2 largest values (9, 10) removed).
+
+Your function should use the `length()` function to check if `x` has at least `s + l + 1` values. If `x` is shorter than `s + l + 1`, your function should use the `message()` function to tell the user that the vector cannot be trimmed as requested. If `x` is at least length `s + l + 1`, your function should return the trimmed mean.
+
+_Hint_: For this exercise you might use the `sort()` function.
+
+Define your function with 3 possible inputs:
+
+```{r}
+# Informative comments describing what the function does
+
+x = c(1, 7, 3, 2, 5, 0.5, 9, 10)
+
+trimmedMean <- function(x, s=0, l=0) {
+  if(length(x)< s+l+1){
+    message("The vector cannot be trimmed")
+  }else{
+  sorted_a <- sort(x)
+  sorted_d <- sort(x, decreasing=T)
+  ss <- sorted[(1:s)]
+  ll <- sorted_d[(1:l)]  
+  sl <-c(ss,ll)
+  mean(x[!x%in%sl])
+    
+  }
+}
+trimmedMean(x,1,2)
+
+```
+
+Note that the `s = 0` and `l = 0` specified in the function definition are the _default settings_. i.e., this syntax ensures that if `s` and `l` are not provided by the user, they are both set to 0. Thus the default behavior is that the `trimmedMean` function does not trim anything, and hence is the same as the `mean` function.
+``
+
+
+# Problem 6
+
+Consider the following function
+
+```{r}
+to.string <- function(x) {
+  string <- x[1]
+  for(i in 2:length(x)) {
+    string <- paste(string, x[i], sep="")
+  }
+  return(string)
+}
+```
+
+- What does the above function `to.string` do to a vector `u`?
+
+```{r}
+u <- c(1,2,3,4)
+
+to.string(u)
+
+```
+
+_It returns a vector with multiple elements to just one element converted to string_
+
+- What is the output of `to.string(2:17)` ? 
+
+```{r}
+
+to.string(2:17)
+
+```
+
+
+- Can you think of a more elegant or simpler implementation of that function? _Hint_ : look at the help page for the `R` function `paste`
+
+```{r}
+# simpler way
+paste(c(u),collapse='')
+
+```
+
+
+# Problem 7
+
+Create a 6 × 10 matrix of random integers chosen from 1, 2,. . . , 10 by executing the following two lines of code:
+
+```{r}
+set.seed(217)
+aMat <- matrix( sample(10, size=60, replace=T), nr=6)
+```
+
+
+(a) Use R to find the number of entries in each row which are greater than 4.
+```{r}
+  
+coun <- ifelse(aMat > 4,1,0)
+
+rowSums(coun)
+
+```
+
+(b) Which rows contain _exactly two_ occurrences of the number seven?
+```{r}
+
+coun <- ifelse(aMat == 7,1,0)
+
+rowSums(coun)
+
+```
+
+

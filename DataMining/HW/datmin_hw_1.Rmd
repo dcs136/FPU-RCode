@@ -1,0 +1,179 @@
+---
+title: "Homework Assignment 1"
+subtitle: "Data Exploration and Preprocessing"
+author: "Danilo Cardoso dos Santos - dcardoso8563@floridapoly.edu"
+output: html_notebook
+---
+
+## Problem 1
+
+Load the `tidyverse` and the `nycflights13` packages.
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+```
+
+Using tools from `dplyr` (part of the `tidyverse`), answer the following questions:
+
+
+(a) From the list of flights that left NYC in 2013 (using the `flights` data frame), find those with a departure delay larger than 60 minutes
+
+```{r}
+flights %>%
+  filter(year == 2013 & dep_delay > 60)
+
+```
+
+
+(b) How would you find the flights with a scheduled departure time later than 10:30 PM ? 
+
+```{r}
+# 2130 == 10:30 PM
+
+flights %>%
+  filter(sched_dep_time > 2130)
+```
+
+
+
+(c) Find all flights that were operated by United, American, or Delta.
+
+```{r}
+# United   == UA
+# American == AA
+# Delta    == DL
+
+flights %>%
+  filter(carrier %in% c('UA','AA','DL'))
+
+```
+
+
+## Problem 2
+
+In this problem you will be using tools from the `caret` package (short for **C**lassification **A**nd **RE**gression **T**raining)
+
+```{r}
+# load the caret package
+library(caret)
+```
+
+(a) Consider the data from the `mtcars` data frame (a built-in dataset in R): 
+
+```{r}
+# print the last 6 entries in the mtcars data frame
+tail(mtcars)
+
+```
+
+
+(b) Using tools from the `caret` package (discussed in class), perform the following transformations to the `mtcars` data frame: **normalization**, **standardization**, and **centering**.
+
+Comments on your results. Verify that in the standardization process, the transformed variables have _unit standard deviation_ (Hint: the `sd()` function in R computes the standard deviation). Choose 3 variables to confirm this. 
+
+
+**Normalizing**
+
+```{r}
+preProc_norm <- preProcess(mtcars, method = c("range"))
+
+new_norm <- predict(preProc_norm, mtcars)
+
+summary(new_norm)
+
+```
+
+
+## Standardizing
+
+```{r}
+preProc_std <- preProcess(mtcars, method = c("center", "scale"))
+
+new_std <- predict(preProc_std, mtcars)
+
+summary(new_std)
+
+# Verifying the Standard Deviation of the new Processed DS
+
+# All three tested variables resulted in 1 for the SD
+
+sd(new_std$mpg)
+
+sd(new_std$cyl)
+
+sd(new_std$disp)
+
+```
+
+
+## Centering
+
+```{r}
+
+preProc_center <- preProcess(mtcars, method = "center")
+
+new_center <- predict(preProc_center, mtcars)
+
+## Checking the new Summarized values
+summary(new_center)
+
+```
+
+
+## Problem 3
+
+The chunk of code below, defines a function in R to create a Hilbert matrix. 
+
+```{r}
+# create Hilbert matrix of size n 
+hilbert <- function(n) { 
+  i <- 1:n
+  1 / outer(i - 1, i, "+") 
+  }
+```
+
+
+(a) Build a Hilbert matrix of size 7, and call it `hil_seven`. 
+
+```{r}
+
+hil_seven <- hilbert(7)
+
+```
+
+
+(b) Select columns 1 through 4, and call it `X`
+
+```{r}
+X <- hil_seven[,1:4] 
+
+```
+
+
+(c) Compute the **singular value decomposition** of `X` using the `svd()` function.
+
+```{r}
+
+s <-svd(X)
+```
+
+
+(d) Print the singular values of `X`
+
+```{r}
+s$d
+```
+
+
+(e) Verify that the product $U^T U$ where $U$ is the matrix of left singular values, returns the _identity matrix_ (a square matrix with ones in the main diagonal, and zeros everywhere else). Recall that the `t()` function in R, creates the _transpose_ of a matrix.
+
+```{r}
+myU <- s$u
+```
+
+
+```{r}
+t(myU) %*% myU
+```
+

@@ -1,0 +1,443 @@
+---
+title: "Conditional, Loops, and Functions"
+output: html_notebook
+---
+
+
+## This lecture is about
+
+- conditionals (if/else)
+- loops (for, while)
+- how to define your own functions
+- basic programming flow
+
+
+
+# Conditionals
+
+## if statements
+
+
+```{r}
+
+
+```
+
+
+---  
+
+```{r}
+
+```
+
+## if/else statements
+
+```{r}
+# Flip a coin 
+
+```
+
+
+## else-if statements
+
+```{r}
+
+```
+
+
+## Equality
+
+```{r}
+
+```
+
+## Beware of finite precision arithmetic
+
+```{r}
+# oops
+sqrt(2)^ 2 ==2
+```
+
+_safety first_
+
+```{r}
+dplyr::near(sqrt(2)^2, 2)
+```
+
+## Vectorized operations
+
+```{r}
+
+```
+
+## Use the double symbol in for loops
+
+default to `&&` or `||` in a for loop
+
+```{r}
+
+```
+
+Otherwise you get a vector
+
+```{r}
+
+```
+
+# Loops
+
+## for loops
+
+```{r}
+for (i in 1:10) {
+    print(i)
+}
+
+
+```
+
+## Pre-allocate memory 
+
+```{r}
+nums <- vector("double", 10)
+for (i in 1:10) {
+  nums[i] <- runif(1)
+}
+
+nums
+
+
+```
+
+## Dynamic allocation bad
+
+```{r}
+# nums <- c()
+# for (i in 1:10) {
+#   nums <- c(nums, runif(1))
+# }
+```
+
+
+## while loops
+
+
+```{r}
+current_position <- 10
+n_iter <- 0
+while (current_position >0) {
+    current_position <- current_position + rnorm(1)
+    n_iter <- n_iter +1
+}
+print(paste0('You lost all your money after ', n_iter, ' Trips to the casino'))
+```
+
+
+## Infinite loops
+
+```{r}
+# while (TRUE) {
+#     print('Math rocks')
+# }
+
+
+```
+
+## Vectorization
+
+Try to vectorize anything you can 
+
+```{r}
+
+sapply(1:10, function(x)x * 2)
+
+```
+
+```{r}
+n <-10
+sum((1:n)^2)
+test <- (1:10)^2
+sum(test)
+```
+
+```{r}
+sum(c(NA, 1,2,-3, pi), na.rm = T)
+```
+
+# Functions
+
+## Functions are for humans and computers
+
+- break long program up into small chunks
+- more readable
+- code reuse
+    - catch errors
+    - don't have to copy/paste
+- only need to fix code in one place
+
+## When to write a function?
+
+
+> You should consider writing a function whenever you've copied and pasted a block of code more than twice
+
+## Define a function
+
+```{r}
+power <- function(num, exponent) {
+    num ^ exponent
+}
+power(2,4)
+```
+
+## Default arguments
+
+```{r}
+
+power <- function(num, exponent=3) {
+    num ^ exponent
+}
+power(3)
+
+```
+
+## Return values
+
+```{r}
+# random_rps <- function() {
+#     r <- runif(1) 
+#         return('rock')
+#     }else if (1/3 < r && r< 2/3){
+#         return('paper')
+#     }else{
+#         return('Scissors')
+#     }
+```
+
+
+## Modularity and abstraction
+
+- _modularity_
+    - break a complicated task into many smaller sub-tasks
+    
+- _abstraction_
+    - you don't need to  know the inner workings of every part of the system, just how things interact
+    
+
+
+# A note on vectors
+
+
+## Vector vs List
+
+- vectors are homogeneous and sequential (1 dimensional)
+
+- lists are heterogeneous and hierarchical 
+
+## Vectors have a type
+
+- boolean
+
+- character
+
+- complex
+
+- raw
+
+- integer 
+
+- double
+
+
+## Integer vector
+
+```{r}
+int <- 1:10
+int
+```
+
+## Boolean vector
+
+```{r}
+# boolean
+bool <- c(T,F,T)
+
+```
+
+## Character vector
+
+```{r}
+# string
+caract <- c('a','b','c')
+
+```
+
+
+## `typeof()`
+
+```{r}
+typeof(caract)
+
+```
+
+
+
+## Question 1
+
+What are the types of the following vectors?
+
+```{r eval=F}
+# a
+c(1, 2, 'three')
+
+# b
+c(TRUE, TRUE, "FALSE")
+
+# c
+c(1, 2, 3.1)
+```
+
+## Explicit coercion
+
+
+```{r}
+
+as.integer(c('1','2','3'))
+
+```
+
+## Implicit coercion
+
+```{r}
+
+
+
+```
+
+then 
+
+```{r}
+
+```
+
+
+## `rbind()` and `cbind()`
+
+
+```{r}
+u <- c(20,3,pi)
+v <- c(-1,0, exp(1))
+v
+
+```
+
+
+```{r}
+rbind(u,v)
+
+```
+
+```{r}
+
+```
+
+
+
+## Coercion
+
+- Logical values are converted to numbers: TRUE is converted to 1 and FALSE to 0.
+
+- Values are converted to the simplest type required to represent all information.
+
+- The ordering is roughly:
+
+logical < integer < numeric < complex < character < list.
+
+- Object attributes are dropped when an object is coerced from one type to another.
+
+
+
+## Vectorized operations and implicit coercion
+
+```{r}
+c(-2,-1,1,2,3) >0
+
+sum(c(-2,-1,1,2,3)>0)
+
+```
+
+## Subsetting a vector
+
+```{r}
+v <- 10:20
+v [c(1,10)]
+
+v[v %% 2 == 0]
+
+
+```
+
+```{r}
+a <- c(2,3,4)
+b <- c(1,2)
+
+```
+
+# A note on lists
+
+## Lists
+
+Lists can contain objects of multiple types and are indexed by names (as opposed to index sequentially)
+
+Like a vector, a list is an indexed set of objects (and so has a length), but unlike a vector the elements of a list can be of different types, including other lists! The _mode_ of a list is `list`.
+
+## Lists
+
+- A list is just a generic container for other objects and the power and utility of lists comes from this generality. 
+
+- A list might contain an individual measurement, a vector of observations on a single response variable, a dataframe, or even a list of dataframes containing the results of several experiments. 
+
+- 
+
+## Make a list
+
+```{r}
+
+```
+
+## Access elements of a list with `[[]]`
+
+Single square brackets are used to select a sublist; double square brackets are used to extract a single element.
+
+
+To access elements of a list use `[[]]` 
+
+```{r}
+
+```
+
+## A single bracket returns a list
+
+
+you can use a single `[]` and this will return a list 
+
+```{r}
+
+
+```
+
+see [R4DS](http://r4ds.had.co.nz/vectors.html#lists) for the difference between `[]` and `[[]]`
+
+
+## Lists are hierarchical
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+## Another example
+
